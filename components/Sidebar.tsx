@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 const SystemStatus = () => (
-    <div>
+    <div className="bg-white rounded-lg p-6 shadow-md flex-1">
         <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
             🔧 System Health
         </h3>
@@ -28,11 +28,11 @@ const DigitalWorker: React.FC<Pick<SidebarProps, 'navigateToCriticalQueue' | 'as
 
     const onToggleChat = () => {
         setChatVisible(!isChatVisible);
-        toggleChat(); // also call parent toggle if needed
+        toggleChat();
     }
     
     return (
-        <div className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white rounded-2xl p-5 shadow-lg">
+        <div className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white rounded-lg p-6 shadow-md flex-1">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold flex items-center gap-2">🤖 Digital Worker</h3>
                 <span className="text-xs font-bold bg-green-400/80 px-2 py-0.5 rounded-full">ACTIVE</span>
@@ -45,21 +45,27 @@ const DigitalWorker: React.FC<Pick<SidebarProps, 'navigateToCriticalQueue' | 'as
                 <div className="text-sm opacity-90 mt-1">Pending immediate attention</div>
             </div>
             <div className="space-y-2 text-sm mb-4">
-                <div className="bg-white/10 p-3 rounded-lg border-l-4 border-yellow-400"><strong>URGENT:</strong> TOPMIS sync failure - 15 records pending validation</div>
-                <div className="bg-white/10 p-3 rounded-lg border-l-4 border-blue-400">Manual review needed for 8 high-priority anomalies</div>
-                <div className="bg-white/10 p-3 rounded-lg border-l-4 border-gray-400">Batch reconciliation scheduled for 16:00 today</div>
+                <div className="bg-white/10 p-3 rounded-lg border-l-4 border-yellow-400">
+                    <strong>URGENT:</strong> TOPMIS sync failure - 15 records pending validation
+                </div>
+                <div className="bg-white/10 p-3 rounded-lg border-l-4 border-blue-400">
+                    Manual review needed for 8 high-priority anomalies
+                </div>
+                <div className="bg-white/10 p-3 rounded-lg border-l-4 border-gray-400">
+                    Batch reconciliation scheduled for 16:00 today
+                </div>
             </div>
             <div className="flex gap-2">
                 <button onClick={assignTask} className="flex-1 bg-white/20 hover:bg-white/30 text-sm font-semibold py-2 px-3 rounded-lg transition-colors">Assign Task</button>
                 <button onClick={onToggleChat} className="flex-1 bg-white/20 hover:bg-white/30 text-sm font-semibold py-2 px-3 rounded-lg transition-colors">Chat</button>
             </div>
             {isChatVisible && (
-                 <div className="mt-4 bg-slate-800/50 rounded-lg p-2" id="chatInterface">
-                     <div className="h-28 overflow-y-auto text-xs space-y-2 p-1 mb-2" id="chatMessages">
-                         <div className="bg-slate-700 p-2 rounded-lg">How can I assist with the anomaly resolution today?</div>
-                     </div>
-                     <input type="text" className="w-full bg-slate-900/80 border border-slate-600 text-xs p-2 rounded-lg focus:ring-1 focus:ring-blue-400 focus:outline-none" placeholder="Ask me anything..." onKeyPress={handleChatInput} />
-                 </div>
+                <div className="mt-4 bg-slate-800/50 rounded-lg p-2" id="chatInterface">
+                    <div className="h-28 overflow-y-auto text-xs space-y-2 p-1 mb-2" id="chatMessages">
+                        <div className="bg-slate-700 p-2 rounded-lg">How can I assist with the anomaly resolution today?</div>
+                    </div>
+                    <input type="text" className="w-full bg-slate-900/80 border border-slate-600 text-xs p-2 rounded-lg focus:ring-1 focus:ring-blue-400 focus:outline-none" placeholder="Ask me anything..." onKeyPress={handleChatInput} />
+                </div>
             )}
         </div>
     );
@@ -74,7 +80,7 @@ const RecentActivity = () => {
         { time: "13:15", text: "RCMS sync warning resolved" }
     ];
     return (
-        <div>
+        <div className="bg-white rounded-lg p-6 shadow-md flex-1">
             <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
                 📊 Recent Activity
             </h3>
@@ -91,18 +97,17 @@ const RecentActivity = () => {
     );
 }
 
-
 const Sidebar: React.FC<SidebarProps> = ({ navigateToCriticalQueue, assignTask, toggleChat, handleChatInput }) => {
     return (
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-white/20 space-y-8">
-           <SystemStatus />
-           <DigitalWorker 
-             navigateToCriticalQueue={navigateToCriticalQueue} 
-             assignTask={assignTask}
-             toggleChat={toggleChat}
-             handleChatInput={handleChatInput}
-           />
-           <RecentActivity />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <SystemStatus />
+            <DigitalWorker 
+                navigateToCriticalQueue={navigateToCriticalQueue} 
+                assignTask={assignTask}
+                toggleChat={toggleChat}
+                handleChatInput={handleChatInput}
+            />
+            <RecentActivity />
         </div>
     );
 };

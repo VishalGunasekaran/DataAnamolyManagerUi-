@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Define types for the component's props
 interface WorkspaceProps {
@@ -9,9 +9,9 @@ interface WorkspaceProps {
 // Data for filters
 const sourceSystems = ['SIDPERS', 'TAPDB', 'RCMS', 'TOPMIS'];
 const severityLevels = [
-  { name: 'Critical', bg: 'bg-red-200', text: 'text-red-800', active: 'bg-red-700' },
-  { name: 'High', bg: 'bg-yellow-200', text: 'text-yellow-800', active: 'bg-yellow-600' },
-  { name: 'Medium', bg: 'bg-orange-200', text: 'text-orange-800', active: 'bg-orange-500' },
+  { name: 'Critical', bg: 'bg-red-200', text: 'text-red-800', active: 'bg-red-700', value: 'critical' },
+  { name: 'High', bg: 'bg-yellow-200', text: 'text-yellow-800', active: 'bg-yellow-600', value: 'high' },
+  { name: 'Medium', bg: 'bg-orange-200', text: 'text-orange-800', active: 'bg-orange-500', value: 'medium' },
 ];
 
 const AnomalyCard = ({ card, handleAction }: any) => {
@@ -57,9 +57,14 @@ const AnomalyCard = ({ card, handleAction }: any) => {
     );
 };
 
-
 const Workspace: React.FC<WorkspaceProps> = ({ handleAction, toggleFilter }) => {
-    // This would typically come from an API
+    // State for search and filters
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
+    const [selectedSeverities, setSelectedSeverities] = useState<string[]>([]);
+    const [filteredAnomalies, setFilteredAnomalies] = useState<any[]>([]);
+
+    // Original anomalies data
     const anomalies = [
         {
             severity: 'critical',
@@ -142,6 +147,65 @@ const Workspace: React.FC<WorkspaceProps> = ({ handleAction, toggleFilter }) => 
         }
     ];
 
+    // Effect to filter anomalies based on search and filters
+    useEffect(() => {
+        let result = [...anomalies];
+
+        // Apply severity filters
+        if (selectedSeverities.length > 0) {
+            result = result.filter(anomaly => 
+                selectedSeverities.includes(anomaly.severity.toLowerCase())
+            );
+        }
+
+        // Apply system filters
+        if (selectedSystems.length > 0) {
+            result = result.filter(anomaly => 
+                anomaly.records.some((record: any) => 
+                    selectedSystems.includes(record.label.split(' ')[0].toUpperCase())
+                )
+            );
+        }
+
+        // Apply search query
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(anomaly => 
+                // Search in service member details
+                anomaly.records.some((record: any) => 
+                    record.fields.some((field: any) => 
+                        field.value.toLowerCase().includes(query)
+                    )
+                ) ||
+                // Search in title
+                anomaly.title.toLowerCase().includes(query)
+            );
+        }
+
+        setFilteredAnomalies(result);
+    }, [searchQuery, selectedSystems, selectedSeverities, anomalies]);
+
+    // Handle system filter toggle
+    const handleSystemFilter = (system: string) => {
+        setSelectedSystems(prev => {
+            const systemName = system.toUpperCase();
+            if (prev.includes(systemName)) {
+                return prev.filter(s => s !== systemName);
+            }
+            return [...prev, systemName];
+        });
+    };
+
+    // Handle severity filter toggle
+    const handleSeverityFilter = (severity: string) => {
+        setSelectedSeverities(prev => {
+            const severityValue = severity.toLowerCase();
+            if (prev.includes(severityValue)) {
+                return prev.filter(s => s !== severityValue);
+            }
+            return [...prev, severityValue];
+        });
+    };
 
     return (
         <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 overflow-hidden">
@@ -153,7 +217,17 @@ const Workspace: React.FC<WorkspaceProps> = ({ handleAction, toggleFilter }) => 
                         <label className="block text-sm font-medium text-gray-600 mb-2">Source System</label>
                         <div className="flex flex-wrap gap-2">
                             {sourceSystems.map(system => (
-                                <div key={system} className="filter-chip source px-3 py-1 rounded-full text-sm font-semibold cursor-pointer bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white" onClick={(e) => toggleFilter(e.currentTarget)}>{system}</div>
+                                <div 
+                                    key={system} 
+                                    className={`filter-chip source px-3 py-1 rounded-full text-sm font-semibold cursor-pointer ${
+                                        selectedSystems.includes(system) 
+                                        ? 'bg-blue-500 text-white' 
+                                        : 'bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white'
+                                    }`}
+                                    onClick={() => handleSystemFilter(system)}
+                                >
+                                    {system}
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -161,24 +235,47 @@ const Workspace: React.FC<WorkspaceProps> = ({ handleAction, toggleFilter }) => 
                         <label className="block text-sm font-medium text-gray-600 mb-2">Severity Level</label>
                         <div className="flex flex-wrap gap-2">
                             {severityLevels.map(level => (
-                                <div key={level.name} className={`filter-chip px-3 py-1 rounded-full text-sm font-semibold cursor-pointer ${level.bg} ${level.text} hover:${level.active} hover:text-white`} onClick={(e) => toggleFilter(e.currentTarget)}>{level.name}</div>
+                                <div 
+                                    key={level.name} 
+                                    className={`filter-chip px-3 py-1 rounded-full text-sm font-semibold cursor-pointer ${
+                                        selectedSeverities.includes(level.value)
+                                        ? `${level.active} text-white`
+                                        : `${level.bg} ${level.text}`
+                                    }`}
+                                    onClick={() => handleSeverityFilter(level.value)}
+                                >
+                                    {level.name}
+                                </div>
                             ))}
                         </div>
                     </div>
                 </div>
                 <div>
-                    <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Search by service member name, SSN, or anomaly ID..." />
+                    <input 
+                        type="text" 
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" 
+                        placeholder="Search by service member name, SSN, or anomaly ID..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
             </div>
 
             {/* Anomaly Queue */}
             <div className="p-6 md:p-8 max-h-[70vh] overflow-y-auto">
-                <h2 className="text-xl font-bold text-gray-800 mb-5 queue-title">Anomaly Queue (23 pending)</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-5 queue-title">
+                    Anomaly Queue ({filteredAnomalies.length} pending)
+                </h2>
                 <div>
-                    {anomalies.map((card, index) => (
+                    {filteredAnomalies.map((card, index) => (
                         <AnomalyCard key={index} card={card} handleAction={handleAction} />
                     ))}
                 </div>
+                {filteredAnomalies.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                        No anomalies found matching your criteria
+                    </div>
+                )}
             </div>
         </div>
     );

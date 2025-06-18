@@ -8,10 +8,10 @@ interface SummaryBannerProps {
 const SummaryBanner: React.FC<SummaryBannerProps> = ({ filterBySystem }) => {
   
   const summaryCards = [
-    { system: 'sidpers', number: '12,847', label: 'SIDPERS Records', details: '+247 new records', anomalies: 3, color: 'bg-blue-600' },
-    { system: 'tapdb', number: '8,934', label: 'TAPDB Records', details: '+156 new records', anomalies: 8, color: 'bg-green-600' },
-    { system: 'rcms', number: '4,523', label: 'RCMS Records', details: '+89 new records', anomalies: 7, color: 'bg-yellow-600' },
-    { system: 'topmis', number: '2,156', label: 'TOPMIS Records', details: '+34 new records', anomalies: 5, color: 'bg-red-600' }
+    { system: 'sidpers', number: '12,847', label: 'SIDPERS Records', details: '+247 new records', anomalies: 3, color: 'border-blue-500', textColor: 'text-blue-500' },
+    { system: 'tapdb', number: '8,934', label: 'TAPDB Records', details: '+247 new records', anomalies: 8, color: 'border-green-500', textColor: 'text-green-500' },
+    { system: 'rcms', number: '4,523', label: 'RCMS Records', details: '+247 new records', anomalies: 7, color: 'border-orange-500', textColor: 'text-orange-500' },
+    { system: 'topmis', number: '2,156', label: 'TOPMIS Records', details: '+247 new records', anomalies: 5, color: 'border-red-500', textColor: 'text-red-500' }
   ];
 
   return (
@@ -19,13 +19,18 @@ const SummaryBanner: React.FC<SummaryBannerProps> = ({ filterBySystem }) => {
       {summaryCards.map((card) => (
         <div 
           key={card.system}
-          className={`${card.color} text-white rounded-2xl p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 cursor-pointer`}
+          className={`bg-white rounded-lg p-6 shadow-md border-l-4 ${card.color} cursor-pointer hover:shadow-lg transition-shadow`}
           onClick={() => filterBySystem(card.system)}
         >
-          <span className="text-3xl font-extrabold block mb-1">{card.number}</span>
-          <span className="text-sm font-medium opacity-90 block mb-2">{card.label}</span>
-          <div className="text-xs opacity-80 leading-tight">{card.details}<br />{card.anomalies} anomalies detected</div>
-          <div className="bg-white/20 text-xs font-semibold inline-block mt-2 px-2 py-0.5 rounded-full">{card.anomalies} NEW</div>
+          <h3 className="text-lg font-semibold text-gray-700">{card.label}</h3>
+          <div className="flex items-baseline mt-2">
+            <span className="text-3xl font-bold text-gray-900">{card.number}</span>
+            <span className="ml-4 text-sm text-gray-600">{card.details}</span>
+          </div>
+          <div className="mt-2 text-sm text-gray-600">
+            {card.anomalies} anomalies detected
+            <span className="ml-2 bg-gray-100 px-2 py-0.5 rounded-full text-xs font-medium">{card.anomalies} New</span>
+          </div>
         </div>
       ))}
     </div>
