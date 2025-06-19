@@ -110,15 +110,15 @@ const Home: NextPage = () => {
                 <Header openKnowledgeModal={openKnowledgeModal} />
                 <SummaryBanner filterBySystem={filterBySystem} />
                 
-                <Workspace handleAction={handleAction} toggleFilter={toggleFilter} />
-                
                 <Sidebar 
                     navigateToCriticalQueue={navigateToCriticalQueue}
                     assignTask={assignTask}
                     toggleChat={toggleChat}
                     handleChatInput={handleChatInput}
                 />
-
+                
+                <Workspace handleAction={handleAction} toggleFilter={toggleFilter} />
+                
                 <Footer />
             </main>
 
